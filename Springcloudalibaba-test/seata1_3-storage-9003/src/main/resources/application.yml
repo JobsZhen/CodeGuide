@@ -1,0 +1,66 @@
+## 该服务的端口信息
+server:
+  port: 9003
+
+
+## mybatis 配置
+mybatis:
+  ## 驼峰命名匹配
+  configuration:
+    map-underscore-to-camel-case: true
+  type-aliases-package: cn.linkpower.dao
+  ## 扫描mapper文件
+  mapperLocations: classpath:mapper/*.xml
+
+## 服务别名和nacos服务注册发现地址配置
+spring:
+  application:
+    name: seata-storage-service
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+  datasource:
+    url: jdbc:mysql://192.168.99.100:3306/seata_storage?serverTimezone=UTC&useSSL=false&useUnicode=true&characterEncoding=utf-8
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: root
+    
+    
+seata:
+  enabled: true # 1.0新特性，需要依赖seata-spring-boot-starter 默认为true
+  enable-auto-data-source-proxy: true
+  tx-service-group: seata_test_group  # 需要与config.txt中的 service.vgroup_mapping.seata-group=default 保持一致
+  server:
+    vgroup-mapping:
+      seata_test_group: default # 需要与config.txt中的 service.vgroup_mapping.seata-group=default 保持一致
+    #grouplist:
+    #  default: 127.0.0.1:8091
+    disable-global-transaction: false
+  registry:  ## 注册中心
+    type: nacos #注册nacos
+    nacos:
+      application: seata-server  #nacos中seata-server启动注册成功后的服务名称
+      server-addr: 127.0.0.1:8848
+      username: nacos
+      password: nacos
+  config: ## 配置中心  与register.conf文件中的保持一致
+    type: nacos
+    nacos:
+      server-addr: 127.0.0.1:8848
+      application: SEATA_GROUP  #与register.conf文件中的保持一致
+      username: nacos
+      password: nacos
+      namespace: b1c7bf6e-f921-4687-86f8-b8be8bcb81ac #默认public
+
+  client:
+    rm:
+      report-success-enable: false    
+    
+    
+## 监控相关
+management.endpoints.web.exposure.include: '*'
+
+feign:
+  hystrix:
+    enabled: false
